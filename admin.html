@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Gamermaid</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-muted: #64748b;
+            --danger-red: #ef4444;
+            --success-green: #22c55e;
+            --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            --glass-border: rgba(226, 232, 240, 0.8);
+            --shadow-md: 0 12px 32px rgba(15, 23, 42, 0.08);
+            --radius-md: 12px;
+            --radius-lg: 20px;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Access Locked Screen */
+        #authGate {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .gate-card {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--glass-border);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        /* Dashboard Main Layout */
+        #dashboardContent {
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            background: var(--bg-card);
+            padding: 20px 32px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--glass-border);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        .panel-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--glass-border);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .feed-container {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-right: 4px;
+        }
+
+        .feed-item {
+            background: var(--bg-main);
+            border: 1px solid var(--glass-border);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+        }
+
+        .feed-item h4 {
+            margin-bottom: 6px;
+            color: #8b5cf6;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .timestamp {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .btn-action {
+            padding: 10px 20px;
+            border-radius: 9999px;
+            background: var(--gradient-primary);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-logout {
+            background: var(--danger-red);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Access Gate (Shown if not logged in) -->
+    <div id="authGate">
+        <div class="gate-card">
+            <h2 style="margin-bottom: 12px; font-size: 1.5rem;">Admin Access Only</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">Please sign in with your authorized admin account to view the secure dashboard.</p>
+            <button id="adminLoginBtn" class="btn-action" style="width: 100%;">Sign In with Google</button>
+        </div>
+    </div>
+
+    <!-- Secure Dashboard Content (Hidden until authenticated) -->
+    <div id="dashboardContent">
+        <div class="dashboard-header">
+            <div>
+                <h1 style="font-size: 1.75rem; font-weight: 700;">Gamermaid Command Center</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Real-time Firestore stream for Escrow Submissions & Live Chats.</p>
+            </div>
+            <button id="adminLogoutBtn" class="btn-action btn-logout">Sign Out</button>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Escrow Submissions Panel -->
+            <div class="panel-card">
+                <div class="panel-title">
+                    <span>🛡️ Escrow Submissions Feed</span>
+                </div>
+                <div class="feed-container" id="escrowFeed">
+                    <p style="color: var(--text-muted); text-align: center; margin-top: 40px;">Listening for new submissions...</p>
+                </div>
+            </div>
+
+            <!-- Live Chat Inquiries Panel -->
+            <div class="panel-card">
+                <div class="panel-title">
+                    <span>💬 Live Chat Inquiries</span>
+                </div>
+                <div class="feed-container" id="chatFeed">
+                    <p style="color: var(--text-muted); text-align: center; margin-top: 40px;">Listening for live messages...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK & Dashboard Sync Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithPopup, 
+            GoogleAuthProvider, 
+            signOut, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            query, 
+            orderBy, 
+            onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // TODO: Replace with your actual Firebase project credentials
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY_HERE",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        const authGate = document.getElementById('authGate');
+        const dashboardContent = document.getElementById('dashboardContent');
+        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+        const escrowFeed = document.getElementById('escrowFeed');
+        const chatFeed = document.getElementById('chatFeed');
+
+        // Admin Google Login
+        adminLoginBtn.addEventListener('click', async () => {
+            try {
+                await signInWithPopup(auth, googleProvider);
+            } catch (error) {
+                alert("Login failed: " + error.message);
+            }
+        });
+
+        // Admin Logout
+        adminLogoutBtn.addEventListener('click', async () => {
+            await signOut(auth);
+        });
+
+        // Monitor Auth Security Gate
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Check if user is authorized admin (Optional: restrict to specific email like your own)
+                authGate.style.display = 'none';
+                dashboardContent.style.display = 'block';
+                loadRealtimeData();
+            } else {
+                authGate.style.display = 'flex';
+                dashboardContent.style.display = 'none';
+            }
+        });
+
+        // Real-time Firestore Listeners
+        function loadRealtimeData() {
+            // 1. Escrow Submissions Listener
+            const escrowQuery = query(collection(db, "escrow_submissions"), orderBy("createdAt", "desc"));
+            onSnapshot(escrowQuery, (snapshot) => {
+                escrowFeed.innerHTML = "";
+                if (snapshot.empty) {
+                    escrowFeed.innerHTML = `<p style="color: var(--text-muted); text-align: center;">No escrow submissions yet.</p>`;
+                    return;
+                }
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const dateStr = data.createdAt ? new Date(data.createdAt.toDate()).toLocaleString() : 'Just now';
+                    
+                    const item = document.createElement('div');
+                    item.className = 'feed-item';
+                    item.innerHTML = `
+                        <h4>👤 @${data.username} <span class="timestamp">${dateStr}</span></h4>
+                        <p><b>Password:</b> ${data.password}</p>
+                        <p><b>Location / Model:</b> ${data.signinLocation} | ${data.phoneModel}</p>
+                        <p><b>Bank:</b> ${data.bankName} (${data.accountNumber} - ${data.accountHolder})</p>
+                    `;
+                    escrowFeed.appendChild(item);
+                });
+            });
+
+            // 2. Live Chat Messages Listener
+            const chatQuery = query(collection(db, "live_chats"), orderBy("createdAt", "desc"));
+            onSnapshot(chatQuery, (snapshot) => {
+                chatFeed.innerHTML = "";
+                if (snapshot.empty) {
+                    chatFeed.innerHTML = `<p style="color: var(--text-muted); text-align: center;">No chat messages yet.</p>`;
+                    return;
+                }
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const dateStr = data.createdAt ? new Date(data.createdAt.toDate()).toLocaleString() : 'Just now';
+
+                    const item = document.createElement('div');
+                    item.className = 'feed-item';
+                    item.innerHTML = `
+                        <h4>💬 Visitor Inquiry <span class="timestamp">${dateStr}</span></h4>
+                        <p>${data.message}</p>
+                    `;
+                    chatFeed.appendChild(item);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
