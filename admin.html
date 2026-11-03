@@ -199,12 +199,13 @@
         </div>
     </div>
 
-    <!-- Firebase SDK & Dashboard Sync Script -->
+    <!-- Firebase SDK & Dashboard Sync Script (Redirect Mode) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { 
             getAuth, 
-            signInWithPopup, 
+            signInWithRedirect, 
+            getRedirectResult, 
             GoogleAuthProvider, 
             signOut, 
             onAuthStateChanged 
@@ -217,7 +218,7 @@
             onSnapshot 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // TODO: Replace with your actual Firebase project credentials
+        // Your exact Firebase project credentials
         const firebaseConfig = {
             apiKey: "AIzaSyBRrvbIb2oJmRR2VvPapc04CoPb2la2DNA",
             authDomain: "middleman-3b4d7.firebaseapp.com",
@@ -225,7 +226,8 @@
             projectId: "middleman-3b4d7",
             storageBucket: "middleman-3b4d7.firebasestorage.app",
             messagingSenderId: "958222361835",
-            appId: "1:958222361835:web:9243b6991c98744884caae"
+            appId: "1:958222361835:web:9243b6991c98744884caae",
+            measurementId: "G-HTGZD0DMN9"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -240,10 +242,15 @@
         const escrowFeed = document.getElementById('escrowFeed');
         const chatFeed = document.getElementById('chatFeed');
 
-        // Admin Google Login
+        // Check for Google Redirect Result on page load
+        getRedirectResult(auth).catch((error) => {
+            console.error("Admin Redirect Login Error:", error);
+        });
+
+        // Admin Google Login via Redirect Mode
         adminLoginBtn.addEventListener('click', async () => {
             try {
-                await signInWithPopup(auth, googleProvider);
+                await signInWithRedirect(auth, googleProvider);
             } catch (error) {
                 alert("Login failed: " + error.message);
             }
@@ -257,7 +264,6 @@
         // Monitor Auth Security Gate
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // Check if user is authorized admin (Optional: restrict to specific email like your own)
                 authGate.style.display = 'none';
                 dashboardContent.style.display = 'block';
                 loadRealtimeData();
