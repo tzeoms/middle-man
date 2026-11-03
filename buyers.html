@@ -53,7 +53,7 @@
         .buyers-header { text-align: center; margin-bottom: 40px; }
         .page-title { font-size: 2.5rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; }
         
-        .buyers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; max-width: 1000px; margin: 0 auto; }
+        .buyers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; max-width: 1200px; margin: 0 auto; }
         .buyer-card { background: #ffffff; border: 1px solid var(--glass-border-light); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden; }
         .buyer-card.highlight { border: 2px solid #8b5cf6; background: linear-gradient(180deg, rgba(139, 92, 246, 0.03) 0%, #ffffff 100%); }
         .buyer-rank { position: absolute; top: 16px; right: 20px; font-weight: 700; font-size: 0.9rem; color: var(--text-light); }
@@ -90,55 +90,75 @@
     <main class="buyers-section">
         <div class="container">
             <div class="buyers-header">
-                <h1 class="page-title">Verified Southeast Asia Buyers</h1>
-                <p style="color: var(--text-muted);">Trusted gaming marketplace buyers and escrow depositors by region.</p>
+                <h1 class="page-title">Verified Regional Buyers</h1>
+                <p style="color: var(--text-muted);">Trusted gaming marketplace buyers and escrow depositors across Asia.</p>
             </div>
 
             <div class="buyers-grid">
-                <!-- 1st Place: Thailand -->
+                <!-- Japan -->
                 <div class="buyer-card">
                     <span class="buyer-rank">#1</span>
-                    <div class="nation-title">🇹🇭 Thailand</div>
-                    <div class="buyer-list-item"><span>SiamGamingTrader</span><span class="badge-verified">Verified</span></div>
-                    <div class="buyer-list-item"><span>BangkokAccVault</span><span class="badge-verified">Verified</span></div>
+                    <div class="nation-title">🇯🇵 Japan</div>
+                    <div class="buyer-list-item"><span>TokyoGamingVault</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>Akihabara_Accounts</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>佐藤ゲーム取引 (Sato Games)</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>大阪アークトレーダー (Osaka Arc)</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>NihonEscrowPro</span><span class="badge-verified">Active Buyer</span></div>
                 </div>
 
-                <!-- 2nd Place: Singapore -->
+                <!-- China -->
                 <div class="buyer-card">
                     <span class="buyer-rank">#2</span>
-                    <div class="nation-title">🇸🇬 Singapore</div>
-                    <div class="buyer-list-item"><span>SG_EscrowHub</span><span class="badge-verified">Verified</span></div>
-                    <div class="buyer-list-item"><span>LionCityTrades</span><span class="badge-verified">Verified</span></div>
+                    <div class="nation-title">🇨🇳 China</div>
+                    <div class="buyer-list-item"><span>DragonEscrowHub</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>ShanghaiGameMarket</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>极光游戏交易 (Aurora Gaming)</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>星辰中介担保 (Stellar Escrow)</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>BeijingAccDepot</span><span class="badge-verified">Active Buyer</span></div>
                 </div>
 
-                <!-- 3rd Place: Myanmar (Burma) -->
+                <!-- Myanmar (Burma) - 3rd Place with KingAccMarket & PyaePhyoAung -->
                 <div class="buyer-card highlight">
                     <span class="buyer-rank top-rank">#3</span>
                     <div class="nation-title">🇲🇲 Myanmar (Burma)</div>
                     <div class="buyer-list-item"><span>KingAccMarket</span><span class="badge-verified">Active Buyer</span></div>
                     <div class="buyer-list-item"><span>PyaePhyoAung</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>YangonDigitalStore</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>MyanmarGamingHub</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>GoldenLandEscrow</span><span class="badge-verified">Active Buyer</span></div>
                 </div>
 
-                <!-- 4th Place: Malaysia -->
+                <!-- Thailand -->
                 <div class="buyer-card">
                     <span class="buyer-rank">#4</span>
-                    <div class="nation-title">🇲🇾 Malaysia</div>
-                    <div class="buyer-list-item"><span>MY_DigitalMarket</span><span class="badge-verified">Verified</span></div>
-                    <div class="buyer-list-item"><span>KL_GamingDepot</span><span class="badge-verified">Verified</span></div>
+                    <div class="nation-title">🇹🇭 Thailand</div>
+                    <div class="buyer-list-item"><span>SiamGamingTrader</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>BangkokAccVault</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>PhuketEscrowStore</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>ThaiDigitalDepot</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>ChiangMaiTrades</span><span class="badge-verified">Active Buyer</span></div>
                 </div>
 
-                <!-- 5th Place: Vietnam -->
+                <!-- Singapore -->
                 <div class="buyer-card">
                     <span class="buyer-rank">#5</span>
-                    <div class="nation-title">🇻🇳 Vietnam</div>
-                    <div class="buyer-list-item"><span>SaigonEscrowPro</span><span class="badge-verified">Verified</span></div>
+                    <div class="nation-title">🇸🇬 Singapore</div>
+                    <div class="buyer-list-item"><span>SG_EscrowHub</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>LionCityTrades</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>MarinaBayVault</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>SG_GameExchange</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>OrchardAccStore</span><span class="badge-verified">Active Buyer</span></div>
                 </div>
 
-                <!-- 6th Place: Indonesia -->
+                <!-- Malaysia -->
                 <div class="buyer-card">
                     <span class="buyer-rank">#6</span>
-                    <div class="nation-title">🇮🇩 Indonesia</div>
-                    <div class="buyer-list-item"><span>IndoGamingStore</span><span class="badge-verified">Verified</span></div>
+                    <div class="nation-title">🇲🇾 Malaysia</div>
+                    <div class="buyer-list-item"><span>MY_DigitalMarket</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>KL_GamingDepot</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>PenangEscrowPro</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>JohorAccountHub</span><span class="badge-verified">Active Buyer</span></div>
+                    <div class="buyer-list-item"><span>MalayaTrades</span><span class="badge-verified">Active Buyer</span></div>
                 </div>
             </div>
         </div>
