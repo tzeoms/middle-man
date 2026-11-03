@@ -1,12 +1,10 @@
-// firebase-config.js - Firebase Initialization & Auth Handler
+// firebase-config.js - Email/Password & Anonymous Auth
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
     getAuth, 
-    signInWithRedirect, 
-    getRedirectResult, 
-    GoogleAuthProvider, 
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword, 
+    signInAnonymously,
     signOut, 
     onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -31,21 +29,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-const googleProvider = new GoogleAuthProvider();
-
-// Check Google Redirect Result
-getRedirectResult(auth).then((result) => {
-    if (result && result.user) {
-        alert(`Welcome back, ${result.user.displayName || result.user.email}!`);
-    }
-}).catch((error) => {
-    console.error("Redirect Error:", error);
-});
-
-// Exported Auth & Database Helpers
-export async function loginWithGoogle() {
-    await signInWithRedirect(auth, googleProvider);
-}
 
 export async function registerEmail(email, password) {
     return await createUserWithEmailAndPassword(auth, email, password);
@@ -53,6 +36,10 @@ export async function registerEmail(email, password) {
 
 export async function loginEmail(email, password) {
     return await signInWithEmailAndPassword(auth, email, password);
+}
+
+export async function loginAnonymous() {
+    return await signInAnonymously(auth);
 }
 
 export async function logoutUser() {
@@ -72,7 +59,7 @@ export async function saveEscrowSubmission(data) {
 
 export async function saveChatMessage(message) {
     return await addDoc(collection(db, "live_chats"), {
-        message,
+        ...message,
         createdAt: serverTimestamp()
     });
 }
