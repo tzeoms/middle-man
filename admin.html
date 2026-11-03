@@ -170,6 +170,37 @@
             font-weight: 400;
         }
 
+        .admin-reply-box {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .admin-reply-box input {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--glass-border);
+            font-size: 0.85rem;
+            outline: none;
+            background: #ffffff;
+        }
+
+        .admin-reply-box button {
+            background: #8b5cf6;
+            color: #ffffff;
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: none;
+        }
+
+        .admin-reply-box button:hover {
+            background: #7c3aed;
+        }
+
         .btn-action {
             padding: 12px 20px;
             border-radius: 9999px;
@@ -197,7 +228,7 @@
 </head>
 <body>
 
-    <!-- Access Gate (Username / Password Login) -->
+    <!-- Access Gate -->
     <div id="authGate">
         <div class="gate-card">
             <h2 style="margin-bottom: 8px; font-size: 1.5rem; text-align: center;">Admin Access</h2>
@@ -242,7 +273,7 @@
             <!-- Live Chat Inquiries Panel -->
             <div class="panel-card">
                 <div class="panel-title">
-                    <span>💬 Live Chat Inquiries</span>
+                    <span>💬 Live Chat Inquiries & Replies</span>
                 </div>
                 <div class="feed-container" id="chatFeed">
                     <p style="color: var(--text-muted); text-align: center; margin-top: 40px;">Listening for live messages...</p>
@@ -257,12 +288,13 @@
         import { 
             getFirestore, 
             collection, 
+            addDoc,
             query, 
             orderBy, 
-            onSnapshot 
+            onSnapshot,
+            serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Your exact Firebase project credentials
         const firebaseConfig = {
             apiKey: "AIzaSyBRrvbIb2oJmRR2VvPapc04CoPb2la2DNA",
             authDomain: "middleman-3b4d7.firebaseapp.com",
@@ -285,12 +317,10 @@
         const escrowFeed = document.getElementById('escrowFeed');
         const chatFeed = document.getElementById('chatFeed');
 
-        // Check persistent session on load
         if (sessionStorage.getItem('gamermaid_admin_auth') === 'true') {
             showDashboard();
         }
 
-        // Handle Admin Login Submission
         adminLoginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const usernameInput = document.getElementById('adminUsername').value.trim();
@@ -305,7 +335,6 @@
             }
         });
 
-        // Logout
         adminLogoutBtn.addEventListener('click', () => {
             sessionStorage.removeItem('gamermaid_admin_auth');
             authGate.style.display = 'flex';
@@ -319,7 +348,6 @@
             loadRealtimeData();
         }
 
-        // Real-time Firestore Listeners
         function loadRealtimeData() {
             // 1. Escrow Submissions Listener
             const escrowQuery = query(collection(db, "escrow_submissions"), orderBy("createdAt", "desc"));
@@ -346,7 +374,7 @@
                 });
             });
 
-            // 2. Live Chat Messages Listener
+            // 2. Live Chat Inquiries Listener with Admin Reply Feature
             const chatQuery = query(collection(db, "live_chats"), orderBy("createdAt", "desc"));
             onSnapshot(chatQuery, (snapshot) => {
                 chatFeed.innerHTML = "";
@@ -354,17 +382,49 @@
                     chatFeed.innerHTML = `<p style="color: var(--text-muted); text-align: center; margin-top: 40px;">No chat messages yet.</p>`;
                     return;
                 }
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
+                snapshot.forEach((docDoc) => {
+                    const data = docDoc.data();
                     const dateStr = data.createdAt ? new Date(data.createdAt.toDate()).toLocaleString() : 'Just now';
+                    const isSenderAdmin = data.isAdmin === true;
 
                     const item = document.createElement('div');
                     item.className = 'feed-item';
                     item.innerHTML = `
-                        <h4>💬 Visitor Inquiry <span class="timestamp">${dateStr}</span></h4>
-                        <p>${data.message}</p>
+                        <h4>${isSenderAdmin ? '🛡️ Admin Reply' : '💬 Visitor Inquiry'} <span class="timestamp">${dateStr}</span></h4>
+                        <p style="margin-bottom: 10px;">${data.message}</p>
+                        ${!isSenderAdmin ? `
+                            <div class="admin-reply-box">
+                                <input type="text" placeholder="Type a reply to customer..." id="replyInput_${docDoc.id}">
+                                <button class="send-reply-btn" data-id="${docDoc.id}">Send Reply</button>
+                            </div>
+                        ` : ''}
                     `;
                     chatFeed.appendChild(item);
+                });
+
+                // Attach event listeners to reply buttons
+                document.querySelectorAll('.send-reply-btn').forEach(button => {
+                    button.addEventListener('click', async (e) => {
+                        const msgId = e.target.getAttribute('data-id');
+                        const inputField = document.getElementById(`replyInput_${msgId}`);
+                        const replyText = inputField.value.trim();
+
+                        if (!replyText) return;
+
+                        try {
+                            await addDoc(collection(db, "live_chats"), {
+                                message: `Admin: ${replyText}`,
+                                isAdmin: true,
+                                replyToId: msgId,
+                                createdAt: serverTimestamp()
+                            });
+                            inputField.value = '';
+                            alert("Reply sent successfully!");
+                        } catch (err) {
+                            console.error('Failed to send admin reply:', err);
+                            alert("Error sending reply.");
+                        }
+                    });
                 });
             });
         }
