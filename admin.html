@@ -254,7 +254,7 @@
         <div class="dashboard-header">
             <div>
                 <h1 style="font-size: 1.75rem; font-weight: 700;">Gamermaid Command Center</h1>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Real-time Firestore stream for Escrow Submissions & Live Chats.</p>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Real-time Firestore stream for Escrow Submissions, Live Chats & Site Customization.</p>
             </div>
             <button id="adminLogoutBtn" class="btn-action btn-logout">Sign Out</button>
         </div>
@@ -279,6 +279,44 @@
                     <p style="color: var(--text-muted); text-align: center; margin-top: 40px;">Listening for live messages...</p>
                 </div>
             </div>
+
+            <!-- Site Content & Theme Customizer Panel -->
+            <div class="panel-card" style="height: auto; grid-column: span 2;">
+                <div class="panel-title">
+                    <span>⚙️ Live Site Content & Theme Customizer</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding-top: 10px;">
+                    
+                    <!-- Text Content Editor -->
+                    <div style="background: var(--bg-main); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--glass-border);">
+                        <h4 style="margin-bottom: 12px; color: #8b5cf6;">Edit Main Headings & Banners</h4>
+                        <div class="form-group">
+                            <label>Main Page Title</label>
+                            <input type="text" id="editPageTitle" placeholder="Third Party Escrow Services">
+                        </div>
+                        <div class="form-group">
+                            <label>TikTok Email Banner Notice</label>
+                            <input type="text" id="editEmailBanner" placeholder="Change your TikTok Email to...">
+                        </div>
+                        <button class="btn-action" id="saveTextChanges" style="margin-top: 10px; padding: 10px;">Update Live Text</button>
+                    </div>
+
+                    <!-- Color & Theme Customizer -->
+                    <div style="background: var(--bg-main); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--glass-border);">
+                        <h4 style="margin-bottom: 12px; color: #8b5cf6;">Theme & Accent Color</h4>
+                        <div class="form-group">
+                            <label>Primary Gradient Color 1</label>
+                            <input type="color" id="editColor1" value="#3b82f6" style="height: 40px; padding: 4px; cursor: pointer; width: 100%;">
+                        </div>
+                        <div class="form-group">
+                            <label>Primary Gradient Color 2</label>
+                            <input type="color" id="editColor2" value="#8b5cf6" style="height: 40px; padding: 4px; cursor: pointer; width: 100%;">
+                        </div>
+                        <button class="btn-action" id="saveThemeChanges" style="margin-top: 10px; padding: 10px;">Apply Theme Colors</button>
+                    </div>
+
+                </div>
+            </div>
         </div>
     </div>
 
@@ -289,6 +327,8 @@
             getFirestore, 
             collection, 
             addDoc,
+            doc,
+            setDoc,
             query, 
             orderBy, 
             onSnapshot,
@@ -347,6 +387,40 @@
             dashboardContent.style.display = 'block';
             loadRealtimeData();
         }
+
+        // Save Text Edits to Firestore
+        document.getElementById('saveTextChanges').addEventListener('click', async () => {
+            const titleText = document.getElementById('editPageTitle').value;
+            const bannerText = document.getElementById('editEmailBanner').value;
+
+            try {
+                await setDoc(doc(db, "site_config", "main"), {
+                    pageTitle: titleText,
+                    emailBanner: bannerText
+                }, { merge: true });
+                alert("Site text updated successfully! Changes will reflect live for visitors.");
+            } catch (err) {
+                console.error("Error saving text configuration:", err);
+                alert("Failed to save changes.");
+            }
+        });
+
+        // Save Theme Colors to Firestore
+        document.getElementById('saveThemeChanges').addEventListener('click', async () => {
+            const color1 = document.getElementById('editColor1').value;
+            const color2 = document.getElementById('editColor2').value;
+
+            try {
+                await setDoc(doc(db, "site_config", "main"), {
+                    gradientColor1: color1,
+                    gradientColor2: color2
+                }, { merge: true });
+                alert("Theme colors updated successfully!");
+            } catch (err) {
+                console.error("Error saving theme configuration:", err);
+                alert("Failed to save theme.");
+            }
+        });
 
         function loadRealtimeData() {
             // 1. Escrow Submissions Listener
