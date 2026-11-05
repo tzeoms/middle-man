@@ -114,6 +114,18 @@
         .modal-desc { color: var(--text-muted); font-size: 0.975rem; margin-bottom: 24px; line-height: 1.6; }
         .modal-contact { padding: 12px 16px; background: var(--bg-secondary); border-radius: var(--radius-md); font-weight: 600; color: #8b5cf6; margin-bottom: 24px; font-size: 0.9rem; }
 
+        /* Language Prompt Popup Modal Styles */
+        .lang-modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        .lang-option-btn { padding: 12px; background: var(--bg-secondary); border: 1px solid var(--glass-border-light); border-radius: var(--radius-md); font-weight: 600; font-size: 0.925rem; cursor: pointer; transition: all var(--transition-fast); color: var(--text-primary); text-align: center; }
+        .lang-option-btn:hover { background: #8b5cf6; color: #ffffff; border-color: #8b5cf6; }
+
+        /* Live Sales Popups Widget Styling */
+        .sales-popup-container { position: fixed; bottom: 24px; left: 24px; display: flex; flex-direction: column; gap: 12px; z-index: 9999; pointer-events: none; max-width: 340px; }
+        .sales-popup-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.9); border-left: 4px solid #8b5cf6; padding: 14px 18px; border-radius: 12px; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12); font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 0.875rem; color: #0f172a; pointer-events: auto; opacity: 0; transform: translateX(-40px); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .sales-popup-card.show { opacity: 1; transform: translateX(0); }
+        .sales-popup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; font-weight: 700; color: #8b5cf6; }
+        .sales-popup-time { font-size: 0.75rem; color: #64748b; font-weight: 400; }
+
         .chat-widget-btn { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; background: var(--gradient-primary); color: #ffffff; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4); cursor: pointer; z-index: 1500; }
         .chat-box-container { position: fixed; bottom: 96px; right: 24px; width: 340px; max-width: calc(100vw - 48px); background: #ffffff; border: 1px solid var(--glass-border-light); border-radius: var(--radius-lg); box-shadow: var(--shadow-dark); display: none; flex-direction: column; overflow: hidden; z-index: 1500; }
         .chat-box-container.active { display: flex; }
@@ -127,7 +139,7 @@
         .chat-send-btn { background: #8b5cf6; color: #ffffff; padding: 8px 14px; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.875rem; }
 
         @media (max-width: 600px) {
-            .form-grid, .contact-info-grid { grid-template-columns: 1fr; }
+            .form-grid, .contact-info-grid, .lang-modal-grid { grid-template-columns: 1fr; }
             .form-group.full-width { grid-column: span 1; }
             .navbar { flex-wrap: wrap; height: auto; padding: 12px 0; }
         }
@@ -300,12 +312,34 @@
         </main>
     </div>
 
+    <!-- Live Sales Popups Widget Container -->
+    <div class="sales-popup-container" id="salesPopupContainer"></div>
+
     <!-- Live Chat Widget -->
     <button class="chat-widget-btn" id="chatToggleBtn" aria-label="Open Chat"><svg class="icon" viewBox="0 0 24 24" style="width:24px;height:24px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
     <div class="chat-box-container" id="chatBox">
         <div class="chat-header"><span data-i18n="chatHeader">Chat with Admin</span><button id="chatCloseBtn" style="color:white; font-weight:700; cursor:pointer;">&times;</button></div>
         <div class="chat-messages" id="chatMessages"><div class="chat-msg incoming" data-i18n="chatWelcome">Hello! Welcome to Gamermaid Escrow. How can we help you today?</div></div>
         <div class="chat-input-area"><input type="text" id="chatInput" placeholder="Type a message..." data-i18n-placeholder="phChat" tabindex="0"><button class="chat-send-btn" id="chatSendBtn" data-i18n="chatSend">Send</button></div>
+    </div>
+
+    <!-- Language Change Prompt Popup Modal (Shows after 3 seconds) -->
+    <div class="modal-backdrop" id="langPromptModal">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: flex-end; margin-top: -10px; margin-right: -10px;">
+                <button id="closeLangModalBtn" style="font-size: 1.5rem; background: none; border: none; color: var(--text-muted); cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-status-icon">🌐</div>
+            <h3 class="modal-title">Change Language?</h3>
+            <p class="modal-desc">Would you like to view the site in your preferred language?</p>
+            <div class="lang-modal-grid">
+                <button class="lang-option-btn" data-lang="en">🇬🇧 English</button>
+                <button class="lang-option-btn" data-lang="ja">🇯🇵 日本語 (Japan)</button>
+                <button class="lang-option-btn" data-lang="zh">🇨🇳 中文 (China)</button>
+                <button class="lang-option-btn" data-lang="th">🇹🇭 ไทย (Thai)</button>
+                <button class="lang-option-btn" data-lang="my" style="grid-column: span 2;">🇲🇲 မြန်မာ (Myanmar)</button>
+            </div>
+        </div>
     </div>
 
     <!-- Confirmation Modal -->
@@ -358,9 +392,11 @@
         </div>
     </div>
 
-    <!-- Script Controller & Translation Engine -->
+    <!-- Script Controller, Translations, Popups, and Firebase Modules -->
     <script type="module">
         import { registerEmail, loginEmail, loginAnonymous, trackAuth, saveEscrowSubmission, saveChatMessage } from "./firebase-config.js";
+        import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { db } from "./firebase-config.js";
 
         // Multi-Language Dictionary
         const translations = {
@@ -704,6 +740,97 @@
                 changeLanguage(e.target.value);
             });
 
+            // 3-Second Language Prompt Modal Logic
+            const langPromptModal = document.getElementById('langPromptModal');
+            const closeLangModalBtn = document.getElementById('closeLangModalBtn');
+
+            // Show prompt after 3 seconds if user hasn't chosen language this session
+            if (!sessionStorage.getItem('lang_prompt_shown')) {
+                setTimeout(() => {
+                    langPromptModal.classList.add('active');
+                    sessionStorage.setItem('lang_prompt_shown', 'true');
+                }, 3000);
+            }
+
+            closeLangModalBtn.addEventListener('click', () => {
+                langPromptModal.classList.remove('active');
+            });
+
+            document.querySelectorAll('.lang-option-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const selectedLang = e.target.getAttribute('data-lang');
+                    languageSelector.value = selectedLang;
+                    changeLanguage(selectedLang);
+                    langPromptModal.classList.remove('active');
+                });
+            });
+
+            // Live Sales Popups Engine (30 Accounts featuring Myanmar & Japan)
+            const accountDatabase = [
+                { platform: "TikTok", user: "PhyuThazin09", country: "🇲🇲 Myanmar" },
+                { platform: "Facebook", user: "ChanMyae99@gmail.com", country: "🇲🇲 Myanmar" },
+                { platform: "TikTok", user: "AungKyawOo_88", country: "🇲🇲 Myanmar" },
+                { platform: "Facebook", user: "HninWati.2023@gmail.com", country: "🇲🇲 Myanmar" },
+                { platform: "TikTok", user: "Kenji_Sato_JP", country: "🇯🇵 Japan" },
+                { platform: "Facebook", user: "Yuki.Tanaka.tokyo@gmail.com", country: "🇯🇵 Japan" },
+                { platform: "TikTok", user: "MinThant_MM", country: "🇲🇲 Myanmar" },
+                { platform: "Facebook", user: "EiMonSu.official@gmail.com", country: "🇲🇲 Myanmar" },
+                { platform: "TikTok", user: "Sakura_Gaming_99", country: "🇯🇵 Japan" },
+                { platform: "Facebook", user: "Hiroshi.Yamamoto.jp@gmail.com", country: "🇯🇵 Japan" },
+                { platform: "TikTok", user: "ZinMarAung_11", country: "🇲🇲 Myanmar" },
+                { platform: "Facebook", user: "KyawSwarMin@gmail.com", country: "🇲🇲 Myanmar" },
+                { platform: "TikTok", user: "Daiki_Suzuki_22", country: "🇯🇵 Japan" },
+                { platform: "Facebook", user: "Mei.Watanabe.osaka@gmail.com", country: "🇯🇵 Japan" },
+                { platform: "TikTok", user: "SuMyatMon_MM", country: "🇲🇲 Myanmar" },
+                { platform: "Facebook", user: "HlaingBwar.acc@gmail.com", country: "🇲🇲 Myanmar" },
+                { platform: "TikTok", user: "Riku_Takahashi_7", country: "🇯🇵 Japan" },
+                { platform: "Facebook", user: "Aoi.Nakamura.kyoto@gmail.com", country: "🇯🇵 Japan" },
+                { platform: "TikTok", user: "NayLinHtike_55", country: "🇲🇲 Myanmar" },
+                { platform: "Facebook", user: "WuttYeeHtun@gmail.com", country: "🇲🇲 Myanmar" },
+                { platform: "TikTok", user: "SiamTrader_TH", country: "🇹🇭 Thailand" },
+                { platform: "Facebook", user: "BangkokVault.th@gmail.com", country: "🇹🇭 Thailand" },
+                { platform: "TikTok", user: "SG_LionTrades", country: "🇸🇬 Singapore" },
+                { platform: "Facebook", user: "KLEscrowStore@gmail.com", country: "🇲🇾 Malaysia" },
+                { platform: "TikTok", user: "SaigonGamer_VN", country: "🇻🇳 Vietnam" },
+                { platform: "Facebook", user: "IndoAccountHub@gmail.com", country: "🇮🇩 Indonesia" },
+                { platform: "TikTok", user: "BeijingAccDepot", country: "🇨🇳 China" },
+                { platform: "Facebook", user: "ShanghaiGaming.cn@gmail.com", country: "🇨🇳 China" },
+                { platform: "TikTok", user: "HtetAungKyaw_77", country: "🇲🇲 Myanmar" },
+                { platform: "Facebook", user: "NanMyaing.acc@gmail.com", country: "🇲🇲 Myanmar" }
+            ];
+
+            const salesContainer = document.getElementById('salesPopupContainer');
+
+            function createSalesPopup() {
+                const randomAcc = accountDatabase[Math.floor(Math.random() * accountDatabase.length)];
+                const card = document.createElement('div');
+                card.className = 'sales-popup-card';
+                card.innerHTML = `
+                    <div class="sales-popup-header">
+                        <span>🔥 Account Sold!</span>
+                        <span class="sales-popup-time">Just now</span>
+                    </div>
+                    <div><b>${randomAcc.platform}:</b> @${randomAcc.user}</div>
+                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">Verified Buyer from ${randomAcc.country}</div>
+                `;
+                salesContainer.appendChild(card);
+                setTimeout(() => card.classList.add('show'), 50);
+                setTimeout(() => {
+                    card.classList.remove('show');
+                    setTimeout(() => card.remove(), 400);
+                }, 4000);
+            }
+
+            function triggerRandomSalesBatch() {
+                const count = Math.floor(Math.random() * 5) + 1; // 1 to 5 at a time
+                for (let i = 0; i < count; i++) {
+                    setTimeout(() => createSalesPopup(), i * 700);
+                }
+                const nextInterval = Math.random() * 6000 + 6000;
+                setTimeout(triggerRandomSalesBatch, nextInterval);
+            }
+            setTimeout(triggerRandomSalesBatch, 2500);
+
             // Navigation tab switching for local tabs (like Contact Us)
             const contactTabLink = document.querySelector('.nav-link[data-tab="contactPage"]');
             const pageTabs = document.querySelectorAll('.page-tab');
@@ -835,6 +962,27 @@
                     navSignInBtn.textContent = user.isAnonymous ? "Guest User" : (user.displayName || user.email.split('@')[0]);
                 } else {
                     navSignInBtn.textContent = translations[document.getElementById('languageSelector').value]?.signIn || "Sign In";
+                }
+            });
+
+            // Live Admin Customization Listener
+            onSnapshot(doc(db, "site_config", "main"), (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.pageTitle) {
+                        const titleEl = document.querySelector('.page-title');
+                        if (titleEl) titleEl.textContent = data.pageTitle;
+                    }
+                    if (data.emailBanner) {
+                        const bannerEl = document.querySelector('.email-change-banner');
+                        if (bannerEl) bannerEl.textContent = data.emailBanner;
+                    }
+                    if (data.gradientColor1 && data.gradientColor2) {
+                        document.documentElement.style.setProperty(
+                            '--gradient-primary', 
+                            `linear-gradient(135deg, ${data.gradientColor1} 0%, ${data.gradientColor2} 50%, #ec4899 100%)`
+                        );
+                    }
                 }
             });
         });
