@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Sales Popup Widget</title>
+    <style>
+        /* Floating Sales Notification Container */
+        .sales-popup-container {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 9999;
+            pointer-events: none;
+            max-width: 340px;
+        }
+
+        .sales-popup-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-left: 4px solid #8b5cf6;
+            padding: 14px 18px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-size: 0.875rem;
+            color: #0f172a;
+            pointer-events: auto;
+            opacity: 0;
+            transform: translateX(-40px);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .sales-popup-card.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .sales-popup-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-weight: 700;
+            color: #8b5cf6;
+        }
+
+        .sales-popup-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Popup Container injected dynamically -->
+    <div class="sales-popup-container" id="salesPopupContainer"></div>
+
+    <script>
+        // 30 Accounts from different countries (heavy focus on Myanmar & Japan)
+        const accountDatabase = [
+            { platform: "TikTok", user: "PhyuThazin09", country: "🇲🇲 Myanmar" },
+            { platform: "Facebook", user: "ChanMyae99@gmail.com", country: "🇲🇲 Myanmar" },
+            { platform: "TikTok", user: "AungKyawOo_88", country: "🇲🇲 Myanmar" },
+            { platform: "Facebook", user: "HninWati.2023@gmail.com", country: "🇲🇲 Myanmar" },
+            { platform: "TikTok", user: "Kenji_Sato_JP", country: "🇯🇵 Japan" },
+            { platform: "Facebook", user: "Yuki.Tanaka.tokyo@gmail.com", country: "🇯🇵 Japan" },
+            { platform: "TikTok", user: "MinThant_MM", country: "🇲🇲 Myanmar" },
+            { platform: "Facebook", user: "EiMonSu.official@gmail.com", country: "🇲🇲 Myanmar" },
+            { platform: "TikTok", user: "Sakura_Gaming_99", country: "🇯🇵 Japan" },
+            { platform: "Facebook", user: "Hiroshi.Yamamoto.jp@gmail.com", country: "🇯🇵 Japan" },
+            { platform: "TikTok", user: "ZinMarAung_11", country: "🇲🇲 Myanmar" },
+            { platform: "Facebook", user: "KyawSwarMin@gmail.com", country: "🇲🇲 Myanmar" },
+            { platform: "TikTok", user: "Daiki_Suzuki_22", country: "🇯🇵 Japan" },
+            { platform: "Facebook", user: "Mei.Watanabe.osaka@gmail.com", country: "🇯🇵 Japan" },
+            { platform: "TikTok", user: "SuMyatMon_MM", country: "🇲🇲 Myanmar" },
+            { platform: "Facebook", user: "HlaingBwar.acc@gmail.com", country: "🇲🇲 Myanmar" },
+            { platform: "TikTok", user: "Riku_Takahashi_7", country: "🇯🇵 Japan" },
+            { platform: "Facebook", user: "Aoi.Nakamura.kyoto@gmail.com", country: "🇯🇵 Japan" },
+            { platform: "TikTok", user: "NayLinHtike_55", country: "🇲🇲 Myanmar" },
+            { platform: "Facebook", user: "WuttYeeHtun@gmail.com", country: "🇲🇲 Myanmar" },
+            { platform: "TikTok", user: "SiamTrader_TH", country: "🇹🇭 Thailand" },
+            { platform: "Facebook", user: "BangkokVault.th@gmail.com", country: "🇹🇭 Thailand" },
+            { platform: "TikTok", user: "SG_LionTrades", country: "🇸🇬 Singapore" },
+            { platform: "Facebook", user: "KLEscrowStore@gmail.com", country: "🇲🇾 Malaysia" },
+            { platform: "TikTok", user: "SaigonGamer_VN", country: "🇻🇳 Vietnam" },
+            { platform: "Facebook", user: "IndoAccountHub@gmail.com", country: "🇮🇩 Indonesia" },
+            { platform: "TikTok", user: "BeijingAccDepot", country: "🇨🇳 China" },
+            { platform: "Facebook", user: "ShanghaiGaming.cn@gmail.com", country: "🇨🇳 China" },
+            { platform: "TikTok", user: "HtetAungKyaw_77", country: "🇲🇲 Myanmar" },
+            { platform: "Facebook", user: "NanMyaing.acc@gmail.com", country: "🇲🇲 Myanmar" }
+        ];
+
+        const container = document.getElementById('salesPopupContainer');
+
+        function createPopup() {
+            // Pick a random account
+            const randomAcc = accountDatabase[Math.floor(Math.random() * accountDatabase.length)];
+            
+            const card = document.createElement('div');
+            card.className = 'sales-popup-card';
+            card.innerHTML = `
+                <div class="sales-popup-header">
+                    <span>🔥 Account Sold!</span>
+                    <span class="sales-popup-time">Just now</span>
+                </div>
+                <div><b>${randomAcc.platform}:</b> @${randomAcc.user}</div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">Verified Buyer from ${randomAcc.country}</div>
+            `;
+
+            container.appendChild(card);
+
+            // Trigger slide in
+            setTimeout(() => card.classList.add('show'), 50);
+
+            // Remove after 4 seconds
+            setTimeout(() => {
+                card.classList.remove('show');
+                setTimeout(() => card.remove(), 400);
+            }, 4000);
+        }
+
+        function triggerRandomPopups() {
+            // Randomly decide to spawn 1 to 5 popups at a time
+            const count = Math.floor(Math.random() * 5) + 1;
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    createPopup();
+                }, i * 600); // Stagger them slightly if more than 1 appears
+            }
+
+            // Schedule next batch between 6 to 12 seconds
+            const nextTime = Math.random() * 6000 + 6000;
+            setTimeout(triggerRandomPopups, nextTime);
+        }
+
+        // Start loop after 2 seconds
+        setTimeout(triggerRandomPopups, 2000);
+    </script>
+</body>
+</html>
